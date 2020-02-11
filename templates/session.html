@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Flask_Chat_App</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+</head>
+<body>
+
+    <div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}">
+        {% for row in range(row_num) %}
+            <div>
+                {% for col in range(col_num) %}
+                    <div class="game-cell"
+                         data-coordinate-x="{{ col }}"
+                         data-coordinate-y="{{ row }}"></div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+<script src="../static/js/script.js" defer></script>
+
+</body>
+</html>
