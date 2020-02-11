@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}">
+    <div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}" data-player="{{ player }}">
         {% for row in range(row_num) %}
             <div>
                 {% for col in range(col_num) %}

@@ -2,6 +2,8 @@ var socket = io.connect('http://' + document.domain + ':' + location.port);
 
 let gameCells = document.querySelectorAll('.game-cell');
 
+let player = document.getElementById('game-board').getAttribute('data-player');
+
 function marker(coordinateX, coordinateY){
     for (let gameCell of gameCells) {
         if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
@@ -13,7 +15,7 @@ function marker(coordinateX, coordinateY){
 socket.on('connect', function () {
     $.each(gameCells, function() {
         $('.game-cell').on('click', function () {
-            marker(this.dataset.coordinateX, this.dataset.coordinateY)
+            marker(this.dataset.coordinateX, this.dataset.coordinateY);
             let xcoord = this.dataset.coordinateX;
             let ycoord = this.dataset.coordinateY;
             socket.emit('my event', {
@@ -23,8 +25,8 @@ socket.on('connect', function () {
         })
 
     })
-})
+});
 
 socket.on('my response', function (msg) {
     marker(msg.xcoord, msg.ycoord)
-    })
+    });
