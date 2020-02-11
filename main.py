@@ -4,7 +4,6 @@ from flask_socketio import SocketIO
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
-players = {}
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -24,13 +23,25 @@ def sessions():
 @socketio.on('start')
 def start():
     print(session)
+    global players
+    players = [session['Player 1'], session['Player 2']]
+    print(players)
     socketio.emit('start game', session['Player 1'])
 
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
+    print(json)
     socketio.emit('my response', json)
 
+
+@socketio.on('next player')
+def next_player(currentPlayer):
+    print("lefutok")
+    if players[0] != currentPlayer:
+        socketio.emit('start game', players[0])
+    else:
+        socketio.emit('start game', players[1])
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
