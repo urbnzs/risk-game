@@ -11,8 +11,8 @@ players = {}
 def sessions():
     if request.method == 'POST':
         player = request.form['player']
-        session[f"Player {len(session) + 1}"] = player
 
+        session[f"Player {len(session) + 1}"] = player
     row_num = 10
     col_num = 10
     if len(session) == 2:
