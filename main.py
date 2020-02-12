@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, session, redirect
 from flask_socketio import SocketIO
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
@@ -13,31 +14,29 @@ def sessions():
         player = request.form['player']
         session[f"Player {len(session) + 1}"] = player
         player_color = f'color{len(session)}'
-    row_num = 10
-    col_num = 10
-    if len(session) == 2:
-        start()
-    return render_template('session.html', row_num=row_num, col_num=col_num, player=player, color=player_color)
+    try:
+        return render_template('session.html', row_num=10, col_num=10, player=player, color=player_color)
+    except UnboundLocalError:
+        return redirect('/login')
 
 
 @socketio.on('start')
 def start():
-    print(session)
     global players
-    players = [session['Player 1'], session['Player 2']]
-    print(players)
-    socketio.emit('start game', session['Player 1'])
+    try:
+        players = [session['Player 1'], session['Player 2']]
+        socketio.emit('start game', session['Player 1'])
+    except KeyError:
+        pass
 
 
 @socketio.on('attack')
 def handle_my_custom_event(json):
-    print(f"main.py > json")
     socketio.emit('stream attack', json)
 
 
 @socketio.on('next player')
 def next_player(currentPlayer):
-    print("main.py > next_player func")
     if players[0] != currentPlayer:
         socketio.emit('start game', players[0])
     else:
@@ -47,6 +46,47 @@ def next_player(currentPlayer):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return render_template('login.html')
+
+
+@socketio.on('roll dices')
+def roll_dices(input_dict):
+    att_num = input_dict['num1']
+    def_num = input_dict['num2']
+    coordinateX = input_dict['coordinateX']
+    coordinateY = input_dict['coordinateY']
+    active_player = input_dict['activePlayer']
+    active_color = input_dict['activeColor']
+    att_dices = []
+    def_dices = []
+    for i in range(att_num):
+        att_dices.append(random.randint(0, 7))
+        if len(att_dices) == 3:
+            att_dices.sort()
+            break
+    for i in range(def_num):
+        def_dices.append(random.randint(0, 7))
+        if len(def_dices) == 2:
+            def_dices.sort()
+            break
+    for i in def_dices:
+        if att_dices[0] <= i:
+            att_num -= 1
+        else:
+            def_num -= 1
+        att_dices.remove(att_dices[0])
+        def_dices.remove(def_dices[0])
+    if att_num != 0 and def_num != 0:
+        roll_dices(
+            {'num1': att_num, 'num2': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+             'activePlayer': active_player,
+             'activeColor': active_color})
+    elif def_num == 0:
+        socketio.emit('attacker win',
+                      {'att_num': att_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+                       'active_player': active_player,
+                       'active_color': active_color})
+    elif att_num == 0:
+        print("DEFENDER WIN")
 
 
 if __name__ == '__main__':
