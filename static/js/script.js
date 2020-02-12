@@ -7,7 +7,6 @@ let startRound = 0;
 
 
 function findGameCell(coordinateX, coordinateY) {
-    console.log('findGameCell');
     for (let gameCell of gameCells) {
         if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
             return gameCell;
@@ -27,11 +26,13 @@ function marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell) {
 function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
     console.log('BEFORE MARKER');
     let gameCell = findGameCell(coordinateX, coordinateY);
-    if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== player) {
-        console.log('beforeMarket initiated');
+    console.log(player);
+    console.log(activePlayer);
+    if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== activePlayer) {
+        console.log('beforeMarker initiated');
         socket.emit('roll dices', {
             num1: 10,
-            num2: 5,
+            num2: 1,
             coordinateX: coordinateX,
             coordinateY: coordinateY,
             activePlayer: activePlayer,
@@ -40,6 +41,7 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
     } else {
         marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell)
     }
+
 }
 
 
@@ -50,6 +52,7 @@ function clickHandler(t) {
         let coordinateX = clickedTarget.getAttribute('data-coordinate-x');
         let coordinateY = clickedTarget.getAttribute('data-coordinate-y');
         let cellOwner = clickedTarget.getAttribute('data-owner');
+
         if (startingRound() || nextCellChecker(coordinateX, coordinateY, cellOwner) || surroundedChecker()) {
             if (cellOwner === 'None' || fullTableChecker()) {
                 socket.emit('attack', {
@@ -58,16 +61,18 @@ function clickHandler(t) {
                     activePlayer: player,
                     activeColor: color
                 });
-                gameBoard.removeEventListener('click', clickHandler);
-                socket.emit('next player', player);
+                if (cellOwner !== player) {
+                    gameBoard.removeEventListener('click', clickHandler);
+                    socket.emit('next player', player);
+                }
             }
+
         }
     }
 }
 
 
 socket.on('attacker win', function (dict) {
-    console.log('attacker win')
         let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
         gameCell.setAttribute('data-owner', 'None');
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
@@ -83,22 +88,17 @@ socket.on('connect', function () {
 
 
 socket.on('stream attack', function (data) {
-    console.log('stream attack');
     beforeMarker(data.coordinateX, data.coordinateY, data.activePlayer, data.activeColor)
 });
 
 
 socket.on('start game', function (activePlayer) {
-    console.log('start game');
-    console.log("activePlayer: " + activePlayer);
-    console.log("player: " + player);
     if (activePlayer === player) {
         gameBoard.addEventListener('click', clickHandler);
     }
 });
 
 function startingRound() {
-    console.log('startingRound');
     if (startRound < 2) {
         startRound++
     }
@@ -107,7 +107,6 @@ function startingRound() {
 }
 
 function nextCellChecker(coordinateX, coordinateY, cellOwner) {
-    console.log('nextCellChecker')
     let upperCell = 0;
     for (let gameCell of gameCells) {
         if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
@@ -172,145 +171,76 @@ function nextCellChecker(coordinateX, coordinateY, cellOwner) {
     let result = false;
 
     if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && upperCell !== 0) {
-            if (upperCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner === 'None' && upperCell !== 0 && upperCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && underCell !== 0 && underCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && rightCell !== 0 && rightCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && leftCell !== 0 && leftCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && leftUpperCell !== 0 && leftUpperCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && rightUpperCell !== 0 && rightUpperCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && leftUnderCell !== 0 && leftUnderCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === 'None' && rightUnderCell !== 0 && rightUnderCell.dataset.owner === player) {
+            result = true
         }
     } else {
-        if (cellOwner !== player && upperCell !== 0) {
-            if (upperCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner !== player && upperCell !== 0 && upperCell.dataset.owner === player) {
+            result = true
         }
-
-    }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && underCell !== 0) {
-            if (underCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner === player && underCell !== 0 && underCell.dataset.owner === player) {
+            result = true
         }
-    } else {
-        if (cellOwner !== player && underCell !== 0) {
-            if (underCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner === player && rightCell !== 0 && rightCell.dataset.owner === player) {
+            result = true
         }
-    }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && rightCell !== 0) {
-            if (rightCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner === player && leftCell !== 0 && leftCell.dataset.owner === player) {
+            result = true
         }
-    } else {
-        if (cellOwner !== player && rightCell !== 0) {
-            if (rightCell.dataset.owner === player) {
-                result = true
-            }
+        if (cellOwner === player && leftUpperCell !== 0 && leftUpperCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === player && rightUpperCell !== 0 && rightUpperCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === player && leftUnderCell !== 0 && leftUnderCell.dataset.owner === player) {
+            result = true
+        }
+        if (cellOwner === player && rightUnderCell !== 0 && rightUnderCell.dataset.owner === player) {
+            result = true
         }
     }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && leftCell !== 0) {
-            if (leftCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    } else {
-        if (cellOwner !== player && leftCell !== 0) {
-            if (leftCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && leftUpperCell !== 0) {
-            if (leftUpperCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    } else {
-        if (cellOwner !== player && leftUpperCell !== 0) {
-            if (leftUpperCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && rightUpperCell !== 0) {
-            if (rightUpperCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    } else {
-        if (cellOwner !== player && rightUpperCell !== 0) {
-            if (rightUpperCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    }
-
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && leftUnderCell !== 0) {
-            if (leftUnderCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    } else {
-        if (cellOwner !== player && leftUnderCell !== 0) {
-            if (leftUnderCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    }
-
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && rightUnderCell !== 0) {
-            if (rightUnderCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    } else {
-        if (cellOwner !== player && rightUnderCell !== 0) {
-            if (rightUnderCell.dataset.owner === player) {
-                result = true
-            }
-        }
-    }
-
     return result
-
 }
 
 
 function surroundedChecker() {
-    console.log('surroundedChecker');
     let emptyNextCells = 0;
     for (let gameCell of gameCells) {
         if (nextCellChecker(gameCell.dataset.coordinateX, gameCell.dataset.coordinateY, gameCell.dataset.owner)) {
             emptyNextCells++
         }
     }
-    console.log(emptyNextCells);
     return emptyNextCells <= 0;
 }
 
 function fullTableChecker() {
-    console.log('fullTableChecker');
     let emptyCells = 0;
     for (let gameCell of gameCells) {
         if (gameCell.dataset.owner === 'None') {
             emptyCells++;
         }
     }
-    console.log(emptyCells);
     return 0 >= emptyCells;
-
 }
