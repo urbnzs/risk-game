@@ -52,6 +52,7 @@ def login():
 def roll_dices(input_dict):
     att_num = input_dict['num1']
     def_num = input_dict['num2']
+    print(input_dict)
     coordinateX = input_dict['coordinateX']
     coordinateY = input_dict['coordinateY']
     active_player = input_dict['activePlayer']
@@ -75,12 +76,8 @@ def roll_dices(input_dict):
             def_num -= 1
         att_dices.remove(att_dices[0])
         def_dices.remove(def_dices[0])
-    if att_num != 0 and def_num != 0:
-        roll_dices(
-            {'num1': att_num, 'num2': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
-             'activePlayer': active_player,
-             'activeColor': active_color})
-    elif def_num == 0:
+
+    if def_num == 0:
         socketio.emit('attacker win',
                       {'att_num': att_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
                        'active_player': active_player,

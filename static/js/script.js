@@ -7,6 +7,7 @@ let startRound = 0;
 
 
 function findGameCell(coordinateX, coordinateY) {
+    console.log('findGameCell');
     for (let gameCell of gameCells) {
         if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
             return gameCell;
@@ -15,8 +16,8 @@ function findGameCell(coordinateX, coordinateY) {
 }
 
 
-function marker(coordinateX, coordinateY, activePlayer, activeColor) {
-    let gameCell = findGameCell(coordinateX, coordinateY);
+function marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell) {
+    console.log('marker');
     gameCell.innerHTML = activePlayer;
     gameCell.setAttribute('data-owner', activePlayer);
     gameCell.setAttribute('color', activeColor);
@@ -24,9 +25,10 @@ function marker(coordinateX, coordinateY, activePlayer, activeColor) {
 
 
 function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
+    console.log('BEFORE MARKER');
     let gameCell = findGameCell(coordinateX, coordinateY);
     if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== player) {
-        console.log('beforeMarket initiated')
+        console.log('beforeMarket initiated');
         socket.emit('roll dices', {
             num1: 10,
             num2: 5,
@@ -36,51 +38,58 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
             activeColor: activeColor
         })
     } else {
-        marker(coordinateX, coordinateY, activePlayer, activeColor)
+        marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell)
     }
 }
 
 
 function clickHandler(t) {
+    console.log('clickHandler');
     if (t.target.className === 'game-cell') {
         let clickedTarget = t.target;
         let coordinateX = clickedTarget.getAttribute('data-coordinate-x');
         let coordinateY = clickedTarget.getAttribute('data-coordinate-y');
         let cellOwner = clickedTarget.getAttribute('data-owner');
         if (startingRound() || nextCellChecker(coordinateX, coordinateY, cellOwner) || surroundedChecker()) {
-            socket.emit('attack', {
-                coordinateX: clickedTarget.getAttribute('data-coordinate-x'),
-                coordinateY: clickedTarget.getAttribute('data-coordinate-y'),
-                activePlayer: player,
-                activeColor: color
-            });
-            gameBoard.removeEventListener('click', clickHandler);
-            socket.emit('next player', player);
+            if (cellOwner === 'None' || fullTableChecker()) {
+                socket.emit('attack', {
+                    coordinateX: clickedTarget.getAttribute('data-coordinate-x'),
+                    coordinateY: clickedTarget.getAttribute('data-coordinate-y'),
+                    activePlayer: player,
+                    activeColor: color
+                });
+                gameBoard.removeEventListener('click', clickHandler);
+                socket.emit('next player', player);
+            }
         }
     }
 }
 
 
 socket.on('attacker win', function (dict) {
+    console.log('attacker win')
         let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
-        gameCell.removeAttribute('data-owner');
+        gameCell.setAttribute('data-owner', 'None');
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
-            gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"], gameCell)
+            gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
     }
 );
 
 
 socket.on('connect', function () {
+    console.log('connect');
     socket.emit('start')
 });
 
 
 socket.on('stream attack', function (data) {
+    console.log('stream attack');
     beforeMarker(data.coordinateX, data.coordinateY, data.activePlayer, data.activeColor)
 });
 
 
 socket.on('start game', function (activePlayer) {
+    console.log('start game');
     console.log("activePlayer: " + activePlayer);
     console.log("player: " + player);
     if (activePlayer === player) {
@@ -89,6 +98,7 @@ socket.on('start game', function (activePlayer) {
 });
 
 function startingRound() {
+    console.log('startingRound');
     if (startRound < 2) {
         startRound++
     }
@@ -97,6 +107,7 @@ function startingRound() {
 }
 
 function nextCellChecker(coordinateX, coordinateY, cellOwner) {
+    console.log('nextCellChecker')
     let upperCell = 0;
     for (let gameCell of gameCells) {
         if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
@@ -210,7 +221,7 @@ function nextCellChecker(coordinateX, coordinateY, cellOwner) {
             }
         }
     } else {
-         if (cellOwner !== player && leftCell !== 0) {
+        if (cellOwner !== player && leftCell !== 0) {
             if (leftCell.dataset.owner === player) {
                 result = true
             }
@@ -280,6 +291,7 @@ function nextCellChecker(coordinateX, coordinateY, cellOwner) {
 
 
 function surroundedChecker() {
+    console.log('surroundedChecker');
     let emptyNextCells = 0;
     for (let gameCell of gameCells) {
         if (nextCellChecker(gameCell.dataset.coordinateX, gameCell.dataset.coordinateY, gameCell.dataset.owner)) {
@@ -291,17 +303,14 @@ function surroundedChecker() {
 }
 
 function fullTableChecker() {
+    console.log('fullTableChecker');
     let emptyCells = 0;
     for (let gameCell of gameCells) {
         if (gameCell.dataset.owner === 'None') {
-            emptyCells ++;
+            emptyCells++;
         }
     }
-    console.log(emptyCells)
-    if (emptyCells > 0) {
-        return false
-    } else {
-        return true
-    }
+    console.log(emptyCells);
+    return 0 >= emptyCells;
 
 }
