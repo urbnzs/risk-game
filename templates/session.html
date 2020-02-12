@@ -8,17 +8,18 @@
 </head>
 <body>
 
-    <div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}" data-player="{{ player }}">
-        {% for row in range(row_num) %}
-            <div>
-                {% for col in range(col_num) %}
-                    <div class="game-cell"
-                         data-coordinate-x="{{ col }}"
-                         data-coordinate-y="{{ row }}"></div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
+<div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}" data-player="{{ player }}"
+     data-color="{{ color }}">
+    {% for row in range(row_num) %}
+        <div>
+            {% for col in range(col_num) %}
+                <div class="game-cell"
+                     data-coordinate-x="{{ col }}"
+                     data-coordinate-y="{{ row }}"></div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>

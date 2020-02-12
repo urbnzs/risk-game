@@ -10,3 +10,11 @@
     color: grey;
     vertical-align: middle;
 }
+
+.game-cell[color="color1"]{
+    background-color: #4ABDAC;
+}
+
+.game-cell[color="color2"]{
+    background-color: #FC4A1A;
+}

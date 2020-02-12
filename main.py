@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
+# ENVIRONMENT VARIABLEKÉNT BEÁLLÍTANI MINDENKINÉL
 socketio = SocketIO(app)
 
 
@@ -10,14 +11,13 @@ socketio = SocketIO(app)
 def sessions():
     if request.method == 'POST':
         player = request.form['player']
-
         session[f"Player {len(session) + 1}"] = player
+        player_color = f'color{len(session)}'
     row_num = 10
     col_num = 10
     if len(session) == 2:
         start()
-
-    return render_template('session.html', row_num=row_num, col_num=col_num, player=player)
+    return render_template('session.html', row_num=row_num, col_num=col_num, player=player, color=player_color)
 
 
 @socketio.on('start')
@@ -29,19 +29,20 @@ def start():
     socketio.emit('start game', session['Player 1'])
 
 
-@socketio.on('my event')
+@socketio.on('attack')
 def handle_my_custom_event(json):
-    print(json)
-    socketio.emit('my response', json)
+    print(f"main.py > json")
+    socketio.emit('stream attack', json)
 
 
 @socketio.on('next player')
 def next_player(currentPlayer):
-    print("lefutok")
+    print("main.py > next_player func")
     if players[0] != currentPlayer:
         socketio.emit('start game', players[0])
     else:
         socketio.emit('start game', players[1])
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
