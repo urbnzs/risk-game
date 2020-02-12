@@ -1,36 +1,52 @@
-var socket = io.connect('http://' + document.domain + ':' + location.port);
+let socket = io.connect('http://' + document.domain + ':' + location.port);
 let gameCells = document.querySelectorAll('.game-cell');
 let gameBoard = document.getElementById('game-board');
 let player = document.getElementById('game-board').getAttribute('data-player');
 let color = document.getElementById('game-board').getAttribute('data-color');
 
-function marker(coordinateX, coordinateY, activePlayer, activeColor) {
+
+function findGameCell(coordinateX, coordinateY) {
     for (let gameCell of gameCells) {
         if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
-            gameCell.innerHTML = 'X';
-            gameCell.setAttribute('data-owner', activePlayer);
-            gameCell.setAttribute('color', activeColor)
+            return gameCell;
         }
     }
-
 }
 
-socket.on('connect', function () {
-    socket.emit('start')
-});
+
+function marker(coordinateX, coordinateY, activePlayer, activeColor) {
+    let gameCell = findGameCell(coordinateX, coordinateY);
+    gameCell.innerHTML = 'X';
+    gameCell.setAttribute('data-owner', activePlayer);
+    gameCell.setAttribute('color', activeColor);
+}
+
+
+function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
+    let gameCell = findGameCell(coordinateX, coordinateY);
+    if (gameCell.hasAttribute('data-owner')) {
+        socket.emit('roll dices', {
+            num1: 10,
+            num2: 5,
+            coordinateX: coordinateX,
+            coordinateY: coordinateY,
+            activePlayer: activePlayer,
+            activeColor: activeColor
+        })
+    } else {
+        marker(coordinateX, coordinateY, activePlayer, activeColor)
+    }
+}
 
 
 function clickHandler(t) {
     if (t.target.className === 'game-cell') {
         let clickedTarget = t.target;
-        let xcoord = clickedTarget.getAttribute('data-coordinate-x');
-        let ycoord = clickedTarget.getAttribute('data-coordinate-y');
         socket.emit('attack', {
-            xcoord: xcoord,
-            ycoord: ycoord,
+            coordinateX: clickedTarget.getAttribute('data-coordinate-x'),
+            coordinateY: clickedTarget.getAttribute('data-coordinate-y'),
             activePlayer: player,
             activeColor: color
-
         })
     }
     gameBoard.removeEventListener('click', clickHandler);
@@ -39,9 +55,24 @@ function clickHandler(t) {
 }
 
 
-socket.on('stream attack', function (data) {
-    marker(data.xcoord, data.ycoord, data.activePlayer, data.activeColor)
+socket.on('attacker win', function (dict) {
+        let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
+        gameCell.removeAttribute('data-owner');
+        beforeMarker(gameCell.getAttribute('data-coordinate-x'),
+            gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"], gameCell)
+    }
+);
+
+
+socket.on('connect', function () {
+    socket.emit('start')
 });
+
+
+socket.on('stream attack', function (data) {
+    beforeMarker(data.coordinateX, data.coordinateY, data.activePlayer, data.activeColor)
+});
+
 
 socket.on('start game', function (activePlayer) {
     console.log("activePlayer: " + activePlayer);
