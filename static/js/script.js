@@ -17,7 +17,7 @@ function findGameCell(coordinateX, coordinateY) {
 
 function marker(coordinateX, coordinateY, activePlayer, activeColor) {
     let gameCell = findGameCell(coordinateX, coordinateY);
-    gameCell.innerHTML = 'X';
+    gameCell.innerHTML = activePlayer;
     gameCell.setAttribute('data-owner', activePlayer);
     gameCell.setAttribute('color', activeColor);
 }
@@ -43,22 +43,21 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
 function clickHandler(t) {
     if (t.target.className === 'game-cell') {
         let clickedTarget = t.target;
-        let xcoord = clickedTarget.getAttribute('data-coordinate-x');
-        let ycoord = clickedTarget.getAttribute('data-coordinate-y');
-        let cellOwner = clickedTarget.getAttribute('data-owner')
-        if (startingRound() || nextCellChecker(xcoord, ycoord, cellOwner) || surroundedChecker()) {
+        let coordinateX = clickedTarget.getAttribute('data-coordinate-x');
+        let coordinateY = clickedTarget.getAttribute('data-coordinate-y');
+        let cellOwner = clickedTarget.getAttribute('data-owner');
+        if (startingRound() || nextCellChecker(coordinateX, coordinateY, cellOwner) || surroundedChecker()) {
             socket.emit('attack', {
-            coordinateX: clickedTarget.getAttribute('data-coordinate-x'),
-            coordinateY: clickedTarget.getAttribute('data-coordinate-y'),
+                coordinateX: clickedTarget.getAttribute('data-coordinate-x'),
+                coordinateY: clickedTarget.getAttribute('data-coordinate-y'),
                 activePlayer: player,
                 activeColor: color
-            })
+            });
             gameBoard.removeEventListener('click', clickHandler);
             socket.emit('next player', player);
         }
-        }
     }
-
+}
 
 
 socket.on('attacker win', function (dict) {
@@ -90,82 +89,77 @@ socket.on('start game', function (activePlayer) {
 
 function startingRound() {
     if (startRound < 2) {
-        startRound ++
+        startRound++
     }
-    if (startRound <= 1) {
-        return true
-    } else {
-        return false
-    }
+    return startRound <= 1;
 
 }
 
-function nextCellChecker(xCoord, yCoord, cellOwner) {
-    let upperCell = 0
+function nextCellChecker(coordinateX, coordinateY, cellOwner) {
+    let upperCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY) && xCoord === gameCell.dataset.coordinateX) {
+        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
             upperCell = gameCell
         }
     }
 
 
-    let underCell = 0
+    let underCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY) && xCoord === gameCell.dataset.coordinateX) {
+        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
             underCell = gameCell
         }
     }
 
-    let rightCell = 0
+    let rightCell = 0;
     for (let gameCell of gameCells) {
-        if (yCoord === gameCell.dataset.coordinateY && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (coordinateY === gameCell.dataset.coordinateY && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
             rightCell = gameCell
         }
     }
 
-    let leftCell = 0
+    let leftCell = 0;
     for (let gameCell of gameCells) {
-        if (yCoord === gameCell.dataset.coordinateY && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (coordinateY === gameCell.dataset.coordinateY && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
             leftCell = gameCell
         }
     }
 
-    let leftUpperCell = 0
+    let leftUpperCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
             leftUpperCell = gameCell
         }
     }
 
-    let rightUpperCell = 0
+    let rightUpperCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
             rightUpperCell = gameCell
         }
     }
 
-    let leftUnderCell = 0
+    let leftUnderCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
             leftUnderCell = gameCell
         }
     }
 
-    let rightUnderCell = 0
+    let rightUnderCell = 0;
     for (let gameCell of gameCells) {
-        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
             rightUnderCell = gameCell
         }
     }
 
-    let result = false
+    let result = false;
 
     if (cellOwner === 'None' && upperCell !== 0) {
-        console.log('upper cell nem üres')
         if (upperCell.dataset.owner === player) {
             result = true
         }
@@ -216,33 +210,12 @@ function nextCellChecker(xCoord, yCoord, cellOwner) {
 
 
 function surroundedChecker() {
-    let emptyNextCells = 0
+    let emptyNextCells = 0;
     for (let gameCell of gameCells) {
         if (nextCellChecker(gameCell.dataset.coordinateX, gameCell.dataset.coordinateY, gameCell.dataset.owner)) {
-            emptyNextCells ++
+            emptyNextCells++
         }
     }
-    console.log(emptyNextCells)
-    if (emptyNextCells > 0) {
-        return false
-    } else {
-        return true
-    }
+    console.log(emptyNextCells);
+    return emptyNextCells <= 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
