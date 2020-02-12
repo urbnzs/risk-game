@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, url_for, redirect
 from flask_socketio import SocketIO
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
@@ -47,6 +48,50 @@ def next_player(currentPlayer):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return render_template('login.html')
+
+
+@socketio.on('roll dices')
+def roll_dices(dict):
+    print(dict)
+    # game_cell, active_player, active_color
+    att_num = dict['num1']
+    def_num = dict['num2']
+    xcoord = dict['xcoord']
+    ycoord = dict['ycoord']
+    active_player = dict['activePlayer']
+    active_color = dict['activeColor']
+    att_dices = []
+    def_dices = []
+    for i in range(att_num):
+        att_dices.append(random.randint(0, 7))
+        if len(att_dices) == 3:
+            att_dices.sort()
+            break
+    for i in range(def_num):
+        def_dices.append(random.randint(0, 7))
+        if len(def_dices) == 2:
+            def_dices.sort()
+            break
+
+    for i in def_dices:
+        print(def_dices)
+        if att_dices[0] <= i:
+            att_num -= 1
+        else:
+            def_num -= 1
+        att_dices.remove(att_dices[0])
+        def_dices.remove(def_dices[0])
+
+    if att_num != 0 and def_num != 0:
+        roll_dices(
+            {'num1': att_num, 'num2': def_num, 'xcoord': xcoord, 'ycoord': ycoord, 'activePlayer': active_player,
+             'activeColor': active_color})
+    elif def_num == 0:
+        socketio.emit('attacker win',
+                      {'att_num': att_num, 'xcoord': xcoord, 'ycoord': ycoord, 'active_player': active_player,
+                       'active_color': active_color})
+    elif att_num == 0:
+        print("DEFENDER WIN")
 
 
 if __name__ == '__main__':
