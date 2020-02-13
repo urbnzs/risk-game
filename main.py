@@ -51,51 +51,61 @@ def login():
 
 @socketio.on('roll dices')
 def roll_dices(input_dict):
-    att_num = input_dict['num1']
-    def_num = input_dict['num2']
-    print(input_dict)
-    coordinateX = input_dict['coordinateX']
-    coordinateY = input_dict['coordinateY']
-    active_player = input_dict['activePlayer']
-    active_color = input_dict['activeColor']
-    att_dices = []
-    def_dices = []
-    for i in range(att_num):
-        att_dices.append(random.randint(0, 7))
-        if len(att_dices) == 3:
-            att_dices.sort()
-            break
-    for i in range(def_num):
-        def_dices.append(random.randint(0, 7))
-        if len(def_dices) == 2:
-            def_dices.sort()
-            break
-    for i in def_dices:
-        if att_dices[0] <= i:
-            att_num -= 1
-        else:
-            def_num -= 1
-        att_dices.remove(att_dices[0])
-        def_dices.remove(def_dices[0])
-    print(f"res_att_num: {att_num}")
-    print(f"res_def_num: {def_num}")
+    all_att_dices = []
+    all_def_dices = []
 
-    if att_num != 0 and def_num != 0:
-        input_dict['num1'] = att_num
-        input_dict['num2'] = def_num
-        roll_dices(input_dict)
+    def inner_roll(input_dict):
+        att_num = input_dict['num1']
+        def_num = input_dict['num2']
+        coordinateX = input_dict['coordinateX']
+        coordinateY = input_dict['coordinateY']
+        active_player = input_dict['activePlayer']
+        active_color = input_dict['activeColor']
+        att_dices = []
+        def_dices = []
+        for i in range(att_num):
+            att_dices.append(random.randint(1, 6))
+            if att_num >= 3 and len(att_dices) == 3:
+                att_dices.sort(reverse=True)
+                break
+            elif att_num == 2 and len(att_dices) == 2:
+                att_dices.sort(reverse=True)
+        for i in range(def_num):
+            def_dices.append(random.randint(1, 6))
+            if def_num >= 2 and len(def_dices) == 2:
+                def_dices.sort(reverse=True)
+                break
+        str_att_dices = ''
+        str_def_dices = ''
+        for element in att_dices:
+            str_att_dices += f'{element} '
+        for element in def_dices:
+            str_def_dices += f'{element} '
+        all_att_dices.append(str_att_dices)
+        all_def_dices.append(str_def_dices)
 
-    if def_num == 0:
+        for i in def_dices:
+            if att_dices[0] <= i:
+                att_num -= 1
+            else:
+                def_num -= 1
+            att_dices.remove(att_dices[0])
+            def_dices.remove(def_dices[0])
+
+        if att_num != 0 and def_num != 0:
+            input_dict['num1'] = att_num
+            input_dict['num2'] = def_num
+            inner_roll(input_dict)
+        return {'att_num': att_num, 'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+                'active_player': active_player,
+                'active_color': active_color}
+
+    output_dict = inner_roll(input_dict)
+    socketio.emit('show dices', {'att_dices': all_att_dices, 'def_dices': all_def_dices})
+    if output_dict['def_num'] == 0:
         print("ATTACKER WIN")
-        socketio.emit('attacker win',
-                      {'att_num': att_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
-                       'active_player': active_player,
-                       'active_color': active_color,
-                       'attackerX': input_dict['attackerX'],
-                       'attackerY': input_dict['attackerY'],
-                       'remainingUnits': str(input_dict['remainingUnits'])
-                       })
-    elif att_num == 0:
+        socketio.emit('attacker win', output_dict)
+    elif output_dict['att_num'] == 0:
         print("DEFENDER WIN")
         socketio.emit('defender win',
                       {'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,

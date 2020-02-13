@@ -26,6 +26,9 @@
     color: black;
 }
 
+.modal {
+  overflow-y:auto;
+}
 .game-board {
     position: absolute;
     left: 30%;

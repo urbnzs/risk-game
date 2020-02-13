@@ -4,6 +4,8 @@ let gameBoard = document.getElementById('game-board');
 let player = document.getElementById('game-board').getAttribute('data-player');
 let color = document.getElementById('game-board').getAttribute('data-color');
 let startRound = 0;
+let diceModal = document.getElementById('dice-button');
+let closeButton = document.querySelector('.btn-secondary');
 
 function findGameCell(coordinateX, coordinateY) {
     let result = 'None'
@@ -52,6 +54,23 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
 // num1: attacker, num2: defender
 
 
+function showDiceRolls() {
+    let modalContent = document.querySelector('#modalLong');
+    modalContent.classList.add('show');
+    modalContent.setAttribute('style', 'display: block; padding-right: 15px;');
+    let bodyContent = document.getElementsByTagName('BODY')[0];
+    bodyContent.classList.add('modal-open');
+    closeButton.addEventListener('click', hideDiceRolls);
+}
+
+
+function hideDiceRolls(){
+    let modalContent = document.querySelector('#modalLong');
+    modalContent.classList.remove('show');
+    modalContent.removeAttribute('style');
+}
+
+
 function clickHandler(t) {
     console.log('clickHandler');
     if (t.target.className === 'game-cell') {
@@ -91,8 +110,7 @@ socket.on('attacker win', function (dict) {
         setTimeout(produceUnits, 1000)
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
             gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
-    }
-);
+    });
 
 socket.on('defender win', function (dict) {
     let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
@@ -119,6 +137,7 @@ socket.on('stream attack', function (data) {
 socket.on('start game', function (activePlayer) {
     if (activePlayer === player) {
         gameBoard.addEventListener('click', clickHandler);
+        diceModal.addEventListener('click', showDiceRolls);
     }
 });
 
@@ -176,6 +195,7 @@ function startingRound() {
     return startRound <= 1;
 
 }
+
 
 function nextCellChecker(coordinateX, coordinateY, cellOwner) {
     let upperCell = 0;
@@ -387,3 +407,32 @@ function fullTableChecker() {
 }
 
 
+socket.on('show dices', function showDices(diceDict) {
+    function replaceNums(dices) {
+        for (let roll = 0; roll < dices.length; roll++) {
+            dices[roll] = dices[roll].replace(/1/g, '⚀');
+            dices[roll] = dices[roll].replace(/2/g, '⚁');
+            dices[roll] = dices[roll].replace(/3/g, '⚂');
+            dices[roll] = dices[roll].replace(/4/g, '⚃');
+            dices[roll] = dices[roll].replace(/5/g, '⚄');
+            dices[roll] = dices[roll].replace(/6/g, '⚅');
+            console.log(roll)
+        }
+
+        return dices;
+    }
+
+    function showDices(dices) {
+        for (let roll = 1; roll < dices[0].length + 1; roll++) {
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" +  roll  + ". round attack dices:</p>";
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[0][roll - 1] + "</p>";
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" +  roll  + ". round defend dices:</p>";
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[1][roll - 1] + "</p>";
+        }
+    }
+    document.getElementsByClassName('att_dices')[0].innerHTML = "";
+    diceDict['att_dices'] = replaceNums(diceDict['att_dices']);
+    diceDict['def_dices'] = replaceNums(diceDict['def_dices']);
+    showDices([diceDict['att_dices'], diceDict['def_dices']])
+
+});
