@@ -18,3 +18,7 @@
 .game-cell[color="color2"]{
     background-color: #FC4A1A;
 }
+
+.modal {
+  overflow-y:auto;
+}

@@ -7,7 +7,6 @@
 
 </head>
 <body>
-<div
 <div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}" data-player="{{ player }}"
      data-color="{{ color }}">
     {% for row in range(row_num) %}
@@ -20,7 +19,33 @@
             {% endfor %}
         </div>
     {% endfor %}
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Dice rolls:</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="att_dices">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+
+        </div>
+    </div>
 </div>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalLong" id="dice-button">
+    Show dice rolls
+</button>
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
