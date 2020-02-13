@@ -2,8 +2,8 @@
     cursor: pointer;
     border: 3px solid black;
     display: inline-block;
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     font-size: 25px;
     margin: 10px;
     vertical-align: middle;
@@ -31,13 +31,15 @@
 }
 
 .game-board {
-    position: absolute;
-    left: 30%;
-    top: 10%;
+    position: relative;
+    left: auto;
+    top: auto;
     color: transparent;
-    width: auto;
+    width: max-content;
     height: auto;
     background-color: rgba(27, 30, 33, 0.3);
+    float:inherit;
+    margin:0 auto;
 }
 
 .att_dices{

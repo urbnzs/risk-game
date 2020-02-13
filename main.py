@@ -15,7 +15,7 @@ def sessions():
         session[f"Player {len(session) + 1}"] = player
         player_color = f'color{len(session)}'
     try:
-        return render_template('session.html', row_num=3, col_num=3, player=player, color=player_color)
+        return render_template('session.html', row_num=4, col_num=4, player=player, color=player_color)
     except UnboundLocalError:
         return redirect('/login')
 
@@ -123,4 +123,4 @@ def roll_dices(input_dict):
 
 if __name__ == '__main__':
     session = {}
-    socketio.run(app, debug=True)
+    socketio.run(app, host="10.44.9.91", port=5000, debug=True)
