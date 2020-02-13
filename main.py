@@ -90,9 +90,17 @@ def roll_dices(input_dict):
         socketio.emit('attacker win',
                       {'att_num': att_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
                        'active_player': active_player,
-                       'active_color': active_color})
+                       'active_color': active_color,
+                       'attackerX': input_dict['attackerX'],
+                       'attackerY': input_dict['attackerY']
+                       })
     elif att_num == 0:
         print("DEFENDER WIN")
+        socketio.emit('defender win',
+                      {'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+                       'attackerX': input_dict['attackerX'],
+                       'attackerY': input_dict['attackerY']
+                       })
 
 
 if __name__ == '__main__':
