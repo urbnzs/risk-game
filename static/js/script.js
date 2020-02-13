@@ -24,7 +24,21 @@ function marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell) {
     gameCell.innerHTML = gameCell.getAttribute('data-unit-deploy');
     gameCell.setAttribute('data-owner', activePlayer);
     gameCell.setAttribute('color', activeColor);
+    if (checkWinner(activePlayer)) {
+        alert(activePlayer + " won the game!")
+    }
 }
+
+
+function checkWinner(activePlayer) {
+    let winner = true;
+    for (let gameCell of gameCells) {
+        if (gameCell.dataset.owner !== activePlayer || gameCell.dataset.owner === "None") {
+            winner = false;
+        }
+    }
+    return winner
+};
 
 
 function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
@@ -51,6 +65,7 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
     }
 
 }
+
 // num1: attacker, num2: defender
 
 
@@ -64,7 +79,7 @@ function showDiceRolls() {
 }
 
 
-function hideDiceRolls(){
+function hideDiceRolls() {
     let modalContent = document.querySelector('#modalLong');
     modalContent.classList.remove('show');
     modalContent.removeAttribute('style');
@@ -101,16 +116,16 @@ function clickHandler(t) {
 
 
 socket.on('attacker win', function (dict) {
-        console.log('attacker win dict: ' + dict)
-        let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
-        gameCell.setAttribute('data-owner', 'None');
-        gameCell.setAttribute('data-unit-deploy', dict["att_num"]);
-        findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = dict['remainingUnits'];
-        findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = dict['remainingUnits'];
-        setTimeout(produceUnits, 1000)
-        beforeMarker(gameCell.getAttribute('data-coordinate-x'),
-            gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
-    });
+    console.log('attacker win dict: ' + dict)
+    let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
+    gameCell.setAttribute('data-owner', 'None');
+    gameCell.setAttribute('data-unit-deploy', dict["att_num"]);
+    findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = dict['remainingUnits'];
+    findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = dict['remainingUnits'];
+    setTimeout(produceUnits, 1000)
+    beforeMarker(gameCell.getAttribute('data-coordinate-x'),
+        gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
+});
 
 socket.on('defender win', function (dict) {
     let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
@@ -163,17 +178,19 @@ function chooseAttacker(coordinateX, coordinateY) {
         }
     }
 
-    return potentialAttackers.sort(function(x,y){return y[0] - x[0];})[0]
+    return potentialAttackers.sort(function (x, y) {
+        return y[0] - x[0];
+    })[0]
 }
 
-function produceUnits(){
+function produceUnits() {
     for (let gameCell of gameCells) {
         gameCell.dataset.unitDeploy = (parseInt(gameCell.dataset.unitDeploy) + 1).toString();
         gameCell.innerHTML = gameCell.dataset.unitDeploy
     }
 }
 
-function attackerUnitChoose(maxUnits){
+function attackerUnitChoose(maxUnits) {
     let units = prompt(`Choose up to ${maxUnits} units to attack with.`, maxUnits)
     let result = 0
     if (Number.isInteger(parseInt(units)) === false) {
@@ -424,12 +441,13 @@ socket.on('show dices', function showDices(diceDict) {
 
     function showDices(dices) {
         for (let roll = 1; roll < dices[0].length + 1; roll++) {
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" +  roll  + ". round attack dices:</p>";
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + roll + ". round attack dices:</p>";
             document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[0][roll - 1] + "</p>";
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" +  roll  + ". round defend dices:</p>";
+            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + roll + ". round defend dices:</p>";
             document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[1][roll - 1] + "</p>";
         }
     }
+
     document.getElementsByClassName('att_dices')[0].innerHTML = "";
     diceDict['att_dices'] = replaceNums(diceDict['att_dices']);
     diceDict['def_dices'] = replaceNums(diceDict['def_dices']);
