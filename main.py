@@ -70,6 +70,7 @@ def roll_dices(input_dict):
                 break
             elif att_num == 2 and len(att_dices) == 2:
                 att_dices.sort(reverse=True)
+                break
         for i in range(def_num):
             def_dices.append(random.randint(1, 6))
             if def_num >= 2 and len(def_dices) == 2:
@@ -95,12 +96,16 @@ def roll_dices(input_dict):
         if att_num != 0 and def_num != 0:
             input_dict['num1'] = att_num
             input_dict['num2'] = def_num
-            inner_roll(input_dict)
-        return {'att_num': att_num, 'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+            return inner_roll(input_dict)
+        else:
+            return {'att_num': att_num, 'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
                 'active_player': active_player,
                 'active_color': active_color}
 
     output_dict = inner_roll(input_dict)
+    output_dict['attackerX'] = input_dict['attackerX']
+    output_dict['attackerY'] = input_dict['attackerY']
+    output_dict['remainingUnits'] = str(input_dict['remainingUnits'])
     socketio.emit('show dices', {'att_dices': all_att_dices, 'def_dices': all_def_dices})
     if output_dict['def_num'] == 0:
         print("ATTACKER WIN")
@@ -108,7 +113,8 @@ def roll_dices(input_dict):
     elif output_dict['att_num'] == 0:
         print("DEFENDER WIN")
         socketio.emit('defender win',
-                      {'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
+                      {'def_num': output_dict['def_num'], 'coordinateX': input_dict['coordinateX'],
+                       'coordinateY': input_dict['coordinateY'],
                        'attackerX': input_dict['attackerX'],
                        'attackerY': input_dict['attackerY'],
                        'remainingUnits': str(input_dict['remainingUnits'])
