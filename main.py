@@ -15,7 +15,7 @@ def sessions():
         session[f"Player {len(session) + 1}"] = player
         player_color = f'color{len(session)}'
     try:
-        return render_template('session.html', row_num=2, col_num=2, player=player, color=player_color)
+        return render_template('session.html', row_num=5, col_num=5, player=player, color=player_color)
     except UnboundLocalError:
         return redirect('/login')
 

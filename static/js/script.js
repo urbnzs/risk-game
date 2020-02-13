@@ -52,7 +52,9 @@ function clickHandler(t) {
         let coordinateX = clickedTarget.getAttribute('data-coordinate-x');
         let coordinateY = clickedTarget.getAttribute('data-coordinate-y');
         let cellOwner = clickedTarget.getAttribute('data-owner');
-
+        console.log(startingRound());
+        console.log(nextCellChecker(coordinateX, coordinateY, cellOwner));
+        console.log(surroundedChecker());
         if (startingRound() || nextCellChecker(coordinateX, coordinateY, cellOwner) || surroundedChecker()) {
             if (cellOwner === 'None' || fullTableChecker()) {
                 socket.emit('attack', {
@@ -106,122 +108,118 @@ function startingRound() {
 
 }
 
-function nextCellChecker(coordinateX, coordinateY, cellOwner) {
-    let upperCell = 0;
+function nextCellChecker(xCoord, yCoord, cellOwner) {
+    let upperCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
+        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY) && xCoord === gameCell.dataset.coordinateX) {
             upperCell = gameCell
         }
     }
 
 
-    let underCell = 0;
+    let underCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY) && coordinateX === gameCell.dataset.coordinateX) {
+        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY) && xCoord === gameCell.dataset.coordinateX) {
             underCell = gameCell
         }
     }
 
-    let rightCell = 0;
+    let rightCell = 0
     for (let gameCell of gameCells) {
-        if (coordinateY === gameCell.dataset.coordinateY && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (yCoord === gameCell.dataset.coordinateY && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
             rightCell = gameCell
         }
     }
 
-    let leftCell = 0;
+    let leftCell = 0
     for (let gameCell of gameCells) {
-        if (coordinateY === gameCell.dataset.coordinateY && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (yCoord === gameCell.dataset.coordinateY && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
             leftCell = gameCell
         }
     }
 
-    let leftUpperCell = 0;
+    let leftUpperCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
             leftUpperCell = gameCell
         }
     }
 
-    let rightUpperCell = 0;
+    let rightUpperCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) + 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(yCoord) + 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
             rightUpperCell = gameCell
         }
     }
 
-    let leftUnderCell = 0;
+    let leftUnderCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(coordinateX) - 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(xCoord) - 1  === parseInt(gameCell.dataset.coordinateX)) {
             leftUnderCell = gameCell
         }
     }
 
-    let rightUnderCell = 0;
+    let rightUnderCell = 0
     for (let gameCell of gameCells) {
-        if (parseInt(coordinateY) - 1 === parseInt(gameCell.dataset.coordinateY)
-            && parseInt(coordinateX) + 1 === parseInt(gameCell.dataset.coordinateX)) {
+        if (parseInt(yCoord) - 1 === parseInt(gameCell.dataset.coordinateY)
+            && parseInt(xCoord) + 1  === parseInt(gameCell.dataset.coordinateX)) {
             rightUnderCell = gameCell
         }
     }
 
-    let result = false;
+    let result = false
 
-    if (fullTableChecker() === false) {
-        if (cellOwner === 'None' && upperCell !== 0 && upperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && underCell !== 0 && underCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && rightCell !== 0 && rightCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && leftCell !== 0 && leftCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && leftUpperCell !== 0 && leftUpperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && rightUpperCell !== 0 && rightUpperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && leftUnderCell !== 0 && leftUnderCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === 'None' && rightUnderCell !== 0 && rightUnderCell.dataset.owner === player) {
-            result = true
-        }
-    } else {
-        if (cellOwner !== player && upperCell !== 0 && upperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && underCell !== 0 && underCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && rightCell !== 0 && rightCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && leftCell !== 0 && leftCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && leftUpperCell !== 0 && leftUpperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && rightUpperCell !== 0 && rightUpperCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && leftUnderCell !== 0 && leftUnderCell.dataset.owner === player) {
-            result = true
-        }
-        if (cellOwner === player && rightUnderCell !== 0 && rightUnderCell.dataset.owner === player) {
+    if (cellOwner === 'None' && upperCell !== 0) {
+        console.log('upper cell nem üres')
+        if (upperCell.dataset.owner === player) {
             result = true
         }
     }
+
+    if (cellOwner === 'None' && underCell !== 0) {
+        if (underCell.dataset.owner === player) {
+            result = true
+        }
+    }
+    if (cellOwner === 'None' && rightCell !== 0) {
+        if (rightCell.dataset.owner === player) {
+            result = true
+        }
+    }
+    if (cellOwner === 'None' && leftCell !== 0) {
+        if (leftCell.dataset.owner === player) {
+            result = true
+        }
+    }
+    if (cellOwner === 'None' && leftUpperCell !== 0) {
+        if (leftUpperCell.dataset.owner === player) {
+            result = true
+        }
+    }
+
+    if (cellOwner === 'None' && rightUpperCell !== 0) {
+        if (rightUpperCell.dataset.owner === player) {
+            result = true
+        }
+    }
+
+    if (cellOwner === 'None' && leftUnderCell !== 0) {
+        if (leftUnderCell.dataset.owner === player) {
+            result = true
+        }
+    }
+
+    if (cellOwner === 'None' && rightUnderCell !== 0) {
+        if (rightUnderCell.dataset.owner === player) {
+            result = true
+        }
+    }
+
     return result
+
 }
 
 
