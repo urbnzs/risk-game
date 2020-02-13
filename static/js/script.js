@@ -5,7 +5,6 @@ let player = document.getElementById('game-board').getAttribute('data-player');
 let color = document.getElementById('game-board').getAttribute('data-color');
 let startRound = 0;
 
-
 function findGameCell(coordinateX, coordinateY) {
     for (let gameCell of gameCells) {
         if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
@@ -17,7 +16,7 @@ function findGameCell(coordinateX, coordinateY) {
 
 function marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell) {
     console.log('marker');
-    gameCell.innerHTML = activePlayer;
+    gameCell.innerHTML = gameCell.getAttribute('data-unit-deploy');
     gameCell.setAttribute('data-owner', activePlayer);
     gameCell.setAttribute('color', activeColor);
 }
