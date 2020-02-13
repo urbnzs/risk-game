@@ -150,6 +150,7 @@ socket.on('stream attack', function (data) {
 
 
 socket.on('start game', function (activePlayer) {
+    document.getElementById('active-player').innerHTML = activePlayer;
     if (activePlayer === player) {
         gameBoard.addEventListener('click', clickHandler);
         diceModal.addEventListener('click', showDiceRolls);
@@ -441,14 +442,14 @@ socket.on('show dices', function showDices(diceDict) {
 
     function showDices(dices) {
         for (let roll = 1; roll < dices[0].length + 1; roll++) {
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + roll + ". round attack dices:</p>";
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[0][roll - 1] + "</p>";
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + roll + ". round defend dices:</p>";
-            document.getElementsByClassName('att_dices')[0].innerHTML += "<p>" + dices[1][roll - 1] + "</p>";
+            document.getElementsByClassName('att_dices_container')[0].innerHTML += "<p>" + roll + ". round attack dices:</p>";
+            document.getElementsByClassName('att_dices_container')[0].innerHTML += "<p class='att_dices'>" + dices[0][roll - 1] + "</p>";
+            document.getElementsByClassName('att_dices_container')[0].innerHTML += "<p>" + roll + ". round defend dices:</p>";
+            document.getElementsByClassName('att_dices_container')[0].innerHTML += "<p class='att_dices'>" + dices[1][roll - 1] + "</p>";
         }
     }
 
-    document.getElementsByClassName('att_dices')[0].innerHTML = "";
+    document.getElementsByClassName('att_dices_container')[0].innerHTML = "";
     diceDict['att_dices'] = replaceNums(diceDict['att_dices']);
     diceDict['def_dices'] = replaceNums(diceDict['def_dices']);
     showDices([diceDict['att_dices'], diceDict['def_dices']])

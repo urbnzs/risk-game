@@ -19,15 +19,8 @@
 <audio controls>
     <source src="static/music/Carl Orff - O Fortuna _ Carmina Burana.mp3" type="audio/mpeg">
 </audio>
-<br>
-<br>
-<h1 style="--font-family-monospace: h" data-heading="Slide">{{ player }}</h1>
-<br>
-<h1 style="--font-family-monospace: h" data-heading="Slide">{{ player }}</h1>
-<br>
-<br>
-<br>
-<br>
+<h1 style="--font-family-monospace: h" data-heading="Slide" id="player-name">{{ player }}</h1>
+<h1 style="--font-family-monospace: h" data-heading="Slide" id="active-player">{{ player }}'s turn</h1>
 <div class="game-board" id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}"
      data-player="{{ player }}"
      data-color="{{ color }}">
@@ -53,7 +46,7 @@
                     <h5 class="modal-title" id="exampleModalLongTitle">Dice rolls:</h5>
                 </div>
                 <div class="modal-body">
-                    <div class="att_dices">
+                    <div class="att_dices_container">
                     </div>
                 </div>
                 <div class="modal-footer">
