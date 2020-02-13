@@ -92,14 +92,16 @@ def roll_dices(input_dict):
                        'active_player': active_player,
                        'active_color': active_color,
                        'attackerX': input_dict['attackerX'],
-                       'attackerY': input_dict['attackerY']
+                       'attackerY': input_dict['attackerY'],
+                       'remainingUnits': str(input_dict['remainingUnits'])
                        })
     elif att_num == 0:
         print("DEFENDER WIN")
         socketio.emit('defender win',
                       {'def_num': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
                        'attackerX': input_dict['attackerX'],
-                       'attackerY': input_dict['attackerY']
+                       'attackerY': input_dict['attackerY'],
+                       'remainingUnits': str(input_dict['remainingUnits'])
                        })
 
 

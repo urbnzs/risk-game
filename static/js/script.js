@@ -31,12 +31,12 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
     console.log(activePlayer);
     if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== player && activePlayer === player) {
         let attackerCell = chooseAttacker(coordinateX, coordinateY)
-        console.log(attackerCell)
-        /*findGameCell(attackerCell[1], attackerCell[2]).dataset.unitDeploy = '1';
-        findGameCell(attackerCell[1], attackerCell[2]).innerHTML = '1';*/
+        let chosenAttackerUnits = attackerUnitChoose(attackerCell[0] - 1)
+        console.log('chosen attacker units: ' + chosenAttackerUnits);
         socket.emit('roll dices', {
-            num1: attackerCell[0] - 1,
+            num1: parseInt(chosenAttackerUnits),
             num2: parseInt(gameCell.dataset.unitDeploy),
+            remainingUnits: attackerCell[0] - parseInt(chosenAttackerUnits),
             coordinateX: coordinateX,
             coordinateY: coordinateY,
             attackerX: attackerCell[1],
@@ -86,8 +86,8 @@ socket.on('attacker win', function (dict) {
         let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
         gameCell.setAttribute('data-owner', 'None');
         gameCell.setAttribute('data-unit-deploy', dict["att_num"]);
-        findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = '1';
-        findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = '1';
+        findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = dict['remainingUnits'];
+        findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = dict['remainingUnits'];
         setTimeout(produceUnits, 1000)
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
             gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
@@ -99,8 +99,8 @@ socket.on('defender win', function (dict) {
     console.log(dict['def_num'])
     gameCell.setAttribute('data-unit-deploy', dict['def_num']);
     gameCell.innerHTML = gameCell.getAttribute('data-unit-deploy');
-    findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = '1';
-    findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = '1';
+    findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = dict['remainingUnits'];
+    findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = dict['remainingUnits'];
     setTimeout(produceUnits, 1000)
 });
 
@@ -152,6 +152,20 @@ function produceUnits(){
         gameCell.dataset.unitDeploy = (parseInt(gameCell.dataset.unitDeploy) + 1).toString();
         gameCell.innerHTML = gameCell.dataset.unitDeploy
     }
+}
+
+function attackerUnitChoose(maxUnits){
+    let units = prompt(`Choose up to ${maxUnits} units to attack with.`, maxUnits)
+    let result = 0
+    if (Number.isInteger(parseInt(units)) === false) {
+        result = attackerUnitChoose(maxUnits)
+    } else if (parseInt(units) > maxUnits) {
+        result = attackerUnitChoose(maxUnits)
+    } else {
+        result = parseInt(units)
+    }
+
+    return result
 }
 
 
