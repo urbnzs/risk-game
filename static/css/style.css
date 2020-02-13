@@ -4,8 +4,7 @@
     display: inline-block;
     width: 50px;
     height: 50px;
-    font-size: 35px;
-    text-align: center;
+    font-size: 25px;
     margin: 10px;
     vertical-align: middle;
     horiz-align: center;
@@ -13,14 +12,18 @@
     padding-bottom: 30px;
     padding-left: 30px;
     padding-right: 30px;
+    text-align: center;
+
 }
 
 .game-cell[color="color1"] {
     background-color: #4ABDAC;
+    color: black;
 }
 
 .game-cell[color="color2"] {
     background-color: #FC4A1A;
+    color: black;
 }
 
 .game-board {
