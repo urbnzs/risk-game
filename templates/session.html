@@ -4,11 +4,22 @@
     <title>Risk Multiplayer</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-
 </head>
 <body>
-<div
-<div id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}" data-player="{{ player }}"
+<style>
+    body {
+        background-image: url('/static/images/background.jpg');
+        background-position: center center;
+        background-repeat: no-repeat;
+         background-attachment: fixed;
+        background-size: cover;
+    }
+</style>
+<audio controls>
+    <source src="static/music/Carl Orff - O Fortuna _ Carmina Burana.mp3" type="audio/mpeg">
+</audio>
+<div class="game-board" id="game-board" data-row-num="{{ row_num }}" data-col-num="{{ col_num }}"
+     data-player="{{ player }}"
      data-color="{{ color }}">
     {% for row in range(row_num) %}
         <div>

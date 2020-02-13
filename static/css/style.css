@@ -1,20 +1,34 @@
 .game-cell {
     cursor: pointer;
-    border: 1px solid black;
+    border: 3px solid black;
     display: inline-block;
     width: 50px;
     height: 50px;
     font-size: 35px;
     text-align: center;
-    margin: 3px;
-    color: grey;
+    margin: 10px;
     vertical-align: middle;
+    horiz-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
-.game-cell[color="color1"]{
+.game-cell[color="color1"] {
     background-color: #4ABDAC;
 }
 
-.game-cell[color="color2"]{
+.game-cell[color="color2"] {
     background-color: #FC4A1A;
+}
+
+.game-board {
+    position: absolute;
+    left: 30%;
+    top: 10%;
+    color: transparent;
+    width: auto;
+    height: auto;
+    background-color: rgba(27, 30, 33, 0.3);
 }
