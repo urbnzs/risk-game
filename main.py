@@ -15,7 +15,7 @@ def sessions():
         session[f"Player {len(session) + 1}"] = player
         player_color = f'color{len(session)}'
     try:
-        return render_template('session.html', row_num=4, col_num=4, player=player, color=player_color)
+        return render_template('session.html', row_num=5, col_num=5, player=player, color=player_color)
     except UnboundLocalError:
         return redirect('/login')
 
@@ -25,6 +25,7 @@ def start():
     global players
     try:
         players = [session['Player 1'], session['Player 2']]
+        print(f"players: {players}")
         socketio.emit('start game', session['Player 1'])
     except KeyError:
         pass
@@ -52,6 +53,7 @@ def login():
 def roll_dices(input_dict):
     att_num = input_dict['num1']
     def_num = input_dict['num2']
+    print(input_dict)
     coordinateX = input_dict['coordinateX']
     coordinateY = input_dict['coordinateY']
     active_player = input_dict['activePlayer']
@@ -75,12 +77,16 @@ def roll_dices(input_dict):
             def_num -= 1
         att_dices.remove(att_dices[0])
         def_dices.remove(def_dices[0])
+    print(f"res_att_num: {att_num}")
+    print(f"res_def_num: {def_num}")
+
     if att_num != 0 and def_num != 0:
-        roll_dices(
-            {'num1': att_num, 'num2': def_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
-             'activePlayer': active_player,
-             'activeColor': active_color})
-    elif def_num == 0:
+        input_dict['num1'] = att_num
+        input_dict['num2'] = def_num
+        roll_dices(input_dict)
+
+    if def_num == 0:
+        print("ATTACKER WIN")
         socketio.emit('attacker win',
                       {'att_num': att_num, 'coordinateX': coordinateX, 'coordinateY': coordinateY,
                        'active_player': active_player,
