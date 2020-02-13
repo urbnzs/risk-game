@@ -23,25 +23,25 @@ function marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell) {
 
 
 function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
-    console.log('BEFORE MARKER');
     let gameCell = findGameCell(coordinateX, coordinateY);
     console.log(player);
     console.log(activePlayer);
-    if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== activePlayer) {
-        console.log('beforeMarker initiated');
+    if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== player && activePlayer === player) {
+        console.log('beforeMarker initiated')
         socket.emit('roll dices', {
-            num1: 10,
-            num2: 1,
+            num1: 5,
+            num2: 5,
             coordinateX: coordinateX,
             coordinateY: coordinateY,
             activePlayer: activePlayer,
             activeColor: activeColor
         })
-    } else {
+    } else if (fullTableChecker() === false) {
         marker(coordinateX, coordinateY, activePlayer, activeColor, gameCell)
     }
 
 }
+// num1: attacker, num2: defender
 
 
 function clickHandler(t) {
@@ -74,6 +74,7 @@ function clickHandler(t) {
 
 
 socket.on('attacker win', function (dict) {
+        console.log('attacker win dict: ' + dict)
         let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
         gameCell.setAttribute('data-owner', 'None');
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
@@ -297,7 +298,6 @@ function surroundedChecker() {
             emptyNextCells++
         }
     }
-    console.log(emptyNextCells);
     return emptyNextCells <= 0;
 }
 
@@ -309,7 +309,6 @@ function fullTableChecker() {
             emptyCells++;
         }
     }
-    console.log(emptyCells)
     if (emptyCells > 0) {
         return false
     } else {
