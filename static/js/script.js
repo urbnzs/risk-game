@@ -6,11 +6,14 @@ let color = document.getElementById('game-board').getAttribute('data-color');
 let startRound = 0;
 
 function findGameCell(coordinateX, coordinateY) {
+    let result = 'None'
     for (let gameCell of gameCells) {
-        if (gameCell.dataset.coordinateX === coordinateX && gameCell.dataset.coordinateY === coordinateY) {
-            return gameCell;
+        if (parseInt(gameCell.dataset.coordinateX) === parseInt(coordinateX)
+            && parseInt(gameCell.dataset.coordinateY) === parseInt(coordinateY)) {
+            result = gameCell;
         }
     }
+    return result
 }
 
 
@@ -27,12 +30,17 @@ function beforeMarker(coordinateX, coordinateY, activePlayer, activeColor) {
     console.log(player);
     console.log(activePlayer);
     if (gameCell.dataset.owner !== 'None' && gameCell.dataset.owner !== player && activePlayer === player) {
-        console.log('beforeMarker initiated')
+        let attackerCell = chooseAttacker(coordinateX, coordinateY)
+        console.log(attackerCell)
+        /*findGameCell(attackerCell[1], attackerCell[2]).dataset.unitDeploy = '1';
+        findGameCell(attackerCell[1], attackerCell[2]).innerHTML = '1';*/
         socket.emit('roll dices', {
-            num1: 5,
-            num2: 5,
+            num1: attackerCell[0] - 1,
+            num2: parseInt(gameCell.dataset.unitDeploy),
             coordinateX: coordinateX,
             coordinateY: coordinateY,
+            attackerX: attackerCell[1],
+            attackerY: attackerCell[2],
             activePlayer: activePlayer,
             activeColor: activeColor
         })
@@ -77,10 +85,24 @@ socket.on('attacker win', function (dict) {
         console.log('attacker win dict: ' + dict)
         let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
         gameCell.setAttribute('data-owner', 'None');
+        gameCell.setAttribute('data-unit-deploy', dict["att_num"]);
+        findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = '1';
+        findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = '1';
+        setTimeout(produceUnits, 1000)
         beforeMarker(gameCell.getAttribute('data-coordinate-x'),
             gameCell.getAttribute('data-coordinate-y'), dict["active_player"], dict["active_color"])
     }
 );
+
+socket.on('defender win', function (dict) {
+    let gameCell = findGameCell(dict.coordinateX, dict.coordinateY);
+    console.log(dict['def_num'])
+    gameCell.setAttribute('data-unit-deploy', dict['def_num']);
+    gameCell.innerHTML = gameCell.getAttribute('data-unit-deploy');
+    findGameCell(dict['attackerX'], dict['attackerY']).dataset.unitDeploy = '1';
+    findGameCell(dict['attackerX'], dict['attackerY']).innerHTML = '1';
+    setTimeout(produceUnits, 1000)
+});
 
 
 socket.on('connect', function () {
@@ -99,6 +121,39 @@ socket.on('start game', function (activePlayer) {
         gameBoard.addEventListener('click', clickHandler);
     }
 });
+
+
+function chooseAttacker(coordinateX, coordinateY) {
+    let potentialAttackers = []
+
+    let gameCell = 0
+
+    let loopList = [[-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1]]
+
+    for (let cellCoord of loopList) {
+        if (findGameCell(parseInt(coordinateX) + cellCoord[0],
+            parseInt(coordinateY) + cellCoord[1]) !== 'None') {
+            if (findGameCell(parseInt(coordinateX) + cellCoord[0],
+                parseInt(coordinateY) + cellCoord[1]).dataset.owner === player) {
+                gameCell = findGameCell(parseInt(coordinateX) + cellCoord[0],
+                    parseInt(coordinateY) + cellCoord[1])
+                let appendList = [parseInt(gameCell.dataset.unitDeploy), gameCell.dataset.coordinateX, gameCell.dataset.coordinateY]
+                console.log(appendList)
+                potentialAttackers.push(appendList)
+            }
+        }
+    }
+
+    return potentialAttackers.sort(function(x,y){return y[0] - x[0];})[0]
+}
+
+function produceUnits(){
+    for (let gameCell of gameCells) {
+        gameCell.dataset.unitDeploy = (parseInt(gameCell.dataset.unitDeploy) + 1).toString();
+        gameCell.innerHTML = gameCell.dataset.unitDeploy
+    }
+}
+
 
 function startingRound() {
     if (startRound < 2) {
