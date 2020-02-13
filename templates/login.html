@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animate.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-<header class="site__header island">
-  <div class="wrap">
-   <span id="animationSandbox" style="display: block;" class="heartBeat animated"><h1 class="site__title mega">Animate.css</h1></span>
-    <span class="beta subhead">Just-add-water CSS animations</span>
-  </div>
-</header><!-- /.site__header -->
-<form method="post" action="/">
 
-    <label for="player">Player name
-        <input name="player">
+<form class = "box" method="post" action="/">
+<h1>
+    Risk game
+</h1>
+    <label for="player">
+        <input class = "name" name="player" placeholder="Name">
     </label>
-    <button type="submit">Submit!</button>
+    <button class = "button" type="submit">Start game!</button>
 </form>
 
 </body>
