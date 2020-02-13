@@ -85,8 +85,8 @@ def roll_dices(input_dict):
         all_att_dices.append(str_att_dices)
         all_def_dices.append(str_def_dices)
 
-        for i in def_dices:
-            if att_dices[0] <= i:
+        while len(att_dices) > 0 and len(def_dices) > 0:
+            if att_dices[0] <= def_dices[0]:
                 att_num -= 1
             else:
                 def_num -= 1
